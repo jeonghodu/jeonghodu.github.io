@@ -161,6 +161,13 @@ h1, h2, h3 { letter-spacing: -.055em; }
 .about-panel { background: var(--panel); border: 1px solid #353538; border-radius: var(--radius); padding: 34px; }
 .about-panel p { font-size: 16px; margin-bottom: 8px; }
 .about-panel small { color: var(--blue); letter-spacing: .14em; font-weight: 700; }
+.questions-section { padding: 120px 0 140px; background: #07090c; }
+.questions-section h2 { font-size: clamp(40px,5vw,66px); margin: 18px 0 54px; line-height: 1.12; }
+.question-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 25px; }
+.question-grid>div { border-top: 1px solid #555963; padding-top: 23px; }
+.question-grid span { color: #80b7ee; font-size: 11px; font-weight: 700; letter-spacing: .14em; }
+.question-grid h3 { font-size: 32px; margin: 24px 0 14px; }
+.question-grid p { font-size: 16px; line-height: 1.75; color: #b6b9c2; word-break: keep-all; }
 .article-shell { padding-top: 74px; padding-bottom: 130px; min-height: 70svh; }
 .back-link { display: inline-block; color: var(--blue); font-size: 14px; text-decoration: none; margin-bottom: 52px; }
 .back-link:hover { text-decoration: underline; }
@@ -169,6 +176,12 @@ h1, h2, h3 { letter-spacing: -.055em; }
 .article-topline { display: flex; justify-content: space-between; align-items: baseline; gap: 15px; border-bottom: 1px solid var(--line); }
 .article-topline .text-button { white-space: nowrap; }
 .article-body { font-size: 19px; line-height: 1.93; white-space: pre-wrap; overflow-wrap: anywhere; color: #e1e1e5; padding: 50px 0 86px; }
+.article-neighbors { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin: 0 0 60px; }
+.neighbor-link { display: grid; grid-template-columns: minmax(0,1fr) 24px; gap: 14px; align-content: space-between; min-height: 165px; border: 1px solid #35353a; border-radius: 18px; background: #151518; padding: 25px; text-decoration: none; transition: border-color .2s, background .2s; }
+.neighbor-link:hover { background: #1f2025; border-color: #627c9d; }
+.neighbor-link small { grid-column: 1 / -1; color: #8f949f; font-size: 12px; }
+.neighbor-link strong { font-size: clamp(19px,2.2vw,25px); line-height: 1.35; letter-spacing: -.04em; overflow-wrap: anywhere; }
+.neighbor-arrow { color: var(--blue); font-size: 22px; align-self: end; }
 .comments { border-top: 1px solid var(--line); padding-top: 40px; }
 .comments>h3 { font-size: 28px; margin-bottom: 10px; }
 .comments .comment-start { margin: 14px 0 6px; }
@@ -184,6 +197,7 @@ h1, h2, h3 { letter-spacing: -.055em; }
 .comment p.comment-preview.expanded { display: block; white-space: pre-wrap; }
 .form-panel { background: var(--panel); border: 1px solid #38383b; border-radius: 22px; padding: 28px; margin: 24px 0; }
 .form-panel h3 { font-size: 24px; margin-bottom: 12px; }
+.editor-note { margin: 13px 0 0; color: #aaaeb8; font-size: 13px; line-height: 1.5; }
 label { display: block; font-size: 14px; font-weight: 600; color: #d2d2d7; margin: 18px 0 8px; }
 input, textarea { display: block; width: 100%; background: #101012; border: 1px solid #515157; border-radius: 12px; color: var(--ink); padding: 13px 15px; outline: none; }
 input:-webkit-autofill, textarea:-webkit-autofill { -webkit-text-fill-color: var(--ink); box-shadow: 0 0 0 1000px #101012 inset; }
@@ -211,6 +225,8 @@ textarea { min-height: 120px; resize: vertical; line-height: 1.65; }
   .home-hero { padding-block: 95px; }
   .home-copy h1 { font-size: clamp(52px, 11vw, 92px); }
   .about-grid { grid-template-columns: 1fr; gap: 24px; }
+  .question-grid { grid-template-columns: 1fr; }
+  .questions-section { padding: 90px 0; }
 }
 @media(max-width:600px) {
   .container, .narrow { width: min(100% - 36px, 1080px); }
@@ -241,6 +257,8 @@ textarea { min-height: 120px; resize: vertical; line-height: 1.65; }
   .latest-link { grid-template-columns: 27px minmax(0,1fr) 19px; gap: 9px; padding: 23px 0; }
   .article-shell { padding-top: 48px; }
   .article-body { font-size: 17px; }
+  .article-neighbors { grid-template-columns: 1fr; }
+  .neighbor-link { min-height: 122px; }
   .comment.reply { margin-left: 12px; }
   .form-panel { padding: 20px; }
 }
@@ -261,7 +279,7 @@ textarea { min-height: 120px; resize: vertical; line-height: 1.65; }
       <nav class="nav-links" aria-label="주요 메뉴"><a href="about.html">ABOUT</a><a href="writing.html" aria-current="page">WRITING</a><a href="projects.html">PROJECTS</a><a href="contact.html">CONTACT</a></nav>
     </div></header>
   <main id="main">
-      <section class="page-intro container"><span class="eyebrow">02 / ESSAYS</span><h1>Writing.</h1><p>철학, 법, 역사, 정치, 아이디어에 관한 글. 제목을 누르면 글 페이지로 이동합니다.</p></section>
+      <section class="page-intro container"><span class="eyebrow">02 / ESSAYS</span><h1>Writing.</h1><p>철학, 법, 역사, 정치에 관한 글과 읽을거리. 제목을 누르면 별도의 글 페이지로 이동합니다.</p></section>
       <section class="page-surface"><div class="narrow">
         <div class="toolbar"><h2>글 목록</h2><button id="compose" class="button" type="button" hidden>새 글</button></div>
         <div id="editor" hidden></div><div id="post-list" aria-live="polite"><p class="muted">목록을 불러오는 중입니다.</p></div>
