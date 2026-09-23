@@ -9,7 +9,7 @@
   --radius: 24px;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; background: #000; }
 body {
   margin: 0;
   background: #000;
@@ -120,6 +120,7 @@ h1, h2, h3 { letter-spacing: -.055em; }
 .form-panel h3 { font-size: 24px; margin-bottom: 12px; }
 label { display: block; font-size: 14px; font-weight: 600; color: #d2d2d7; margin: 18px 0 8px; }
 input, textarea { display: block; width: 100%; background: #101012; border: 1px solid #515157; border-radius: 12px; color: var(--ink); padding: 13px 15px; outline: none; }
+input:-webkit-autofill, textarea:-webkit-autofill { -webkit-text-fill-color: var(--ink); box-shadow: 0 0 0 1000px #101012 inset; }
 input:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px #2997ff33; }
 textarea { min-height: 120px; resize: vertical; line-height: 1.65; }
 .row, .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
