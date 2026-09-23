@@ -60,15 +60,11 @@
     .toolbar h3 {margin:0}
     .list {border-top:1px solid var(--line)}
     .entry {padding:24px 0;border-bottom:1px solid var(--line)}
-    .entry button.title {
-      display:block;background:none;border:0;color:var(--ink);
-      padding:0;text-align:left;font-size:25px;
-      font-weight:700;line-height:1.3;
+    .entry a.title {
+      display:block;color:var(--ink);text-decoration:none;
+      font-size:25px;font-weight:700;line-height:1.3;
     }
-    .entry button.title:hover {color:var(--accent)}
-    .entry p {
-      margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere;
-    }
+    .entry a.title:hover,.entry a.title:focus-visible {color:var(--accent)}
     .meta {color:#818181;font-size:13px;letter-spacing:.04em}
     .muted {color:var(--muted)}
     .panel {
@@ -254,9 +250,9 @@
   (() => {
     'use strict';
 
-const configured =
-  !SUPABASE_URL.includes('YOUR_PROJECT_REF') &&
-  SUPABASE_PUBLISHABLE_KEY !== 'YOUR_PUBLISHABLE_KEY';;
+    const configured =
+      !SUPABASE_URL.includes('YOUR_PROJECT_REF') &&
+      SUPABASE_PUBLISHABLE_KEY !== 'YOUR_PUBLISHABLE_KEY';
 
     const client = configured && window.supabase
       ? window.supabase.createClient(
@@ -266,6 +262,7 @@ const configured =
 
     let isAdmin = false;
     const posts = {writing:[],projects:[]};
+    const loaded = {writing:false,projects:false};
     const views = {
       writing:document.querySelector('#writing-view'),
       projects:document.querySelector('#projects-view')
@@ -314,50 +311,9 @@ const configured =
 
       for(const item of posts[category]) {
         const card = el('article','entry');
-
-        card.append(
-          button(
-            item.title,
-            () => renderArticle(category,item),
-            'title'
-          )
-        );
-        card.append(
-          el('div','meta',
-            date(item.created_at) +
-            (item.updated_at !== item.created_at
-              ? ' · 수정됨' : '')
-          )
-        );
-        card.append(
-          el('p','',
-            item.body.slice(0,165) +
-            (item.body.length > 165 ? '…' : '')
-          )
-        );
-
-        if(isAdmin) {
-          const actions = el('div','actions');
-          actions.append(
-            button('수정',() => renderEditor(category,item))
-          );
-          actions.append(
-            button('삭제',async () => {
-              if(!confirm(
-                '이 글과 모든 댓글을 삭제할까요? ' +
-                '되돌릴 수 없습니다.'
-              )) return;
-              try {
-                await rpc('remove_post',{p_id:item.id});
-                await loadPosts(category);
-              } catch(e) {
-                alert(e.message);
-              }
-            })
-          );
-          card.append(actions);
-        }
-
+        const link = el('a','title',item.title);
+        link.href = `#${category}/post/${item.id}`;
+        card.append(link);
         list.append(card);
       }
 
@@ -373,6 +329,7 @@ const configured =
       try {
         posts[category] =
           await rpc('list_posts',{p_category:category});
+        loaded[category] = true;
         renderPosts(category);
       } catch(e) {
         handleError(views[category],e);
@@ -407,7 +364,10 @@ const configured =
 
       actions.append(
         submit,
-        button('취소',() => renderPosts(category))
+        button('취소',() => {
+          location.hash = `#${category}`;
+          renderPosts(category);
+        })
       );
       form.append(titleLabel,bodyLabel,actions,error);
       view.replaceChildren(form);
@@ -426,6 +386,8 @@ const configured =
             p_body:body.value.trim()
           });
           await loadPosts(category);
+          location.hash = `#${category}`;
+          route();
         } catch(e) {
           error.textContent = e.message;
           submit.disabled = false;
@@ -438,7 +400,10 @@ const configured =
       const article = el('article','article');
 
       article.append(
-        button('← 목록으로',() => renderPosts(category))
+        button('← 목록으로',() => {
+          location.hash = `#${category}`;
+          renderPosts(category);
+        })
       );
       article.append(
         el('h3','',item.title),
@@ -446,12 +411,53 @@ const configured =
       );
       article.append(el('div','article-body',item.body));
 
+      if(isAdmin) {
+        const actions = el('div','actions');
+        actions.append(button('수정',() => renderEditor(category,item)));
+        actions.append(button('삭제',async () => {
+          if(!confirm('이 글과 모든 댓글을 삭제할까요? 되돌릴 수 없습니다.')) return;
+          try {
+            await rpc('remove_post',{p_id:item.id});
+            await loadPosts(category);
+            location.hash = `#${category}`;
+            route();
+          } catch(e) {
+            alert(e.message);
+          }
+        }));
+        article.append(actions);
+      }
+
       const comments = el('div','comments');
       article.append(comments);
       view.replaceChildren(article);
 
       await renderComments(comments,category,item.id);
     }
+
+    function route() {
+      const match = /^#(writing|projects)\/post\/(\d+)$/.exec(location.hash);
+      for(const category of ['writing','projects']) {
+        if(loaded[category]) renderPosts(category);
+      }
+      if(!match) return;
+
+      const category = match[1];
+      if(!loaded[category]) return;
+      const item = posts[category].find(post => String(post.id) === match[2]);
+      if(item) {
+        renderArticle(category,item);
+      } else {
+        const view = views[category];
+        view.replaceChildren(
+          button('← 목록으로',() => { location.hash = `#${category}`; }),
+          el('p','empty','글을 찾을 수 없습니다.')
+        );
+      }
+      document.getElementById(category).scrollIntoView({block:'start'});
+    }
+
+    window.addEventListener('hashchange',route);
 
     async function renderComments(
       target,category,postId=null
@@ -744,8 +750,7 @@ const configured =
       document.querySelector('#login-form')
         .hidden = true;
 
-      renderPosts('writing');
-      renderPosts('projects');
+      route();
     }
 
     document.querySelectorAll('[data-compose]')
@@ -833,6 +838,7 @@ const configured =
         const {data} = await client.auth.getSession();
         if(data.session) await refreshAdmin();
       }
+      route();
     }
 
     init();
