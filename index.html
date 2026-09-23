@@ -312,7 +312,7 @@
       for(const item of posts[category]) {
         const card = el('article','entry');
         const link = el('a','title',item.title);
-        link.href = `#${category}/post/${item.id}`;
+        link.href = `post.html?category=${category}&id=${item.id}`;
         card.append(link);
         list.append(card);
       }
@@ -395,66 +395,15 @@
       });
     }
 
-    async function renderArticle(category,item) {
-      const view = views[category];
-      const article = el('article','article');
-
-      article.append(
-        button('← 목록으로',() => {
-          location.hash = `#${category}`;
-          renderPosts(category);
-        })
-      );
-      article.append(
-        el('h3','',item.title),
-        el('div','meta',date(item.created_at))
-      );
-      article.append(el('div','article-body',item.body));
-
-      if(isAdmin) {
-        const actions = el('div','actions');
-        actions.append(button('수정',() => renderEditor(category,item)));
-        actions.append(button('삭제',async () => {
-          if(!confirm('이 글과 모든 댓글을 삭제할까요? 되돌릴 수 없습니다.')) return;
-          try {
-            await rpc('remove_post',{p_id:item.id});
-            await loadPosts(category);
-            location.hash = `#${category}`;
-            route();
-          } catch(e) {
-            alert(e.message);
-          }
-        }));
-        article.append(actions);
-      }
-
-      const comments = el('div','comments');
-      article.append(comments);
-      view.replaceChildren(article);
-
-      await renderComments(comments,category,item.id);
-    }
-
     function route() {
       const match = /^#(writing|projects)\/post\/(\d+)$/.exec(location.hash);
+      if(match) {
+        location.replace(`post.html?category=${match[1]}&id=${match[2]}`);
+        return;
+      }
       for(const category of ['writing','projects']) {
         if(loaded[category]) renderPosts(category);
       }
-      if(!match) return;
-
-      const category = match[1];
-      if(!loaded[category]) return;
-      const item = posts[category].find(post => String(post.id) === match[2]);
-      if(item) {
-        renderArticle(category,item);
-      } else {
-        const view = views[category];
-        view.replaceChildren(
-          button('← 목록으로',() => { location.hash = `#${category}`; }),
-          el('p','empty','글을 찾을 수 없습니다.')
-        );
-      }
-      document.getElementById(category).scrollIntoView({block:'start'});
     }
 
     window.addEventListener('hashchange',route);
