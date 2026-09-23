@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JEONG HODU — Philosophy · Law · Ideas</title>
+  <style>
+    :root {
+      color-scheme:dark;
+      --bg:#0d0d0d;--panel:#171717;--line:#343434;
+      --ink:#f5f5f5;--muted:#aaa;--accent:#d9bf8c;
+    }
+    * {box-sizing:border-box}
+    html {scroll-behavior:smooth}
+    body {
+      margin:0;background:var(--bg);color:var(--ink);
+      font-family:Arial,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    }
+    a {color:inherit}
+    button,input,textarea {font:inherit}
+    button {cursor:pointer}
+    button:disabled {opacity:.5;cursor:wait}
+    .wrap {max-width:1050px;margin:auto;padding:0 42px}
+    .hero {
+      min-height:100svh;display:flex;flex-direction:column;
+      justify-content:center;
+    }
+    h1 {
+      font-size:clamp(68px,12vw,148px);line-height:.88;
+      letter-spacing:-.055em;margin:0;font-weight:800;
+    }
+    .subtitle {
+      color:#999;letter-spacing:.15em;margin:32px 0 0;
+      font-size:clamp(14px,2vw,20px);
+    }
+    nav {
+      border-top:1px solid var(--line);margin-top:52px;
+      padding-top:26px;display:flex;gap:24px;flex-wrap:wrap;
+    }
+    nav a {text-decoration:none;font-size:14px;letter-spacing:.08em}
+    nav a:hover,.text-button:hover {color:var(--accent)}
+    section.content {
+      padding-top:100px;padding-bottom:110px;
+      min-height:62vh;border-top:1px solid #292929;
+    }
+    .eyebrow {
+      font-size:12px;letter-spacing:.2em;color:var(--accent);
+    }
+    h2 {
+      font-size:clamp(40px,6vw,68px);
+      letter-spacing:-.04em;margin:18px 0 26px;
+    }
+    h3 {font-size:24px;letter-spacing:-.02em}
+    p {line-height:1.7;color:var(--muted)}
+    .lead {max-width:680px;font-size:18px}
+    .toolbar {
+      display:flex;align-items:center;justify-content:space-between;
+      gap:16px;margin:42px 0 20px;
+    }
+    .toolbar h3 {margin:0}
+    .list {border-top:1px solid var(--line)}
+    .entry {padding:24px 0;border-bottom:1px solid var(--line)}
+    .entry button.title {
+      display:block;background:none;border:0;color:var(--ink);
+      padding:0;text-align:left;font-size:25px;
+      font-weight:700;line-height:1.3;
+    }
+    .entry button.title:hover {color:var(--accent)}
+    .entry p {
+      margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere;
+    }
+    .meta {color:#818181;font-size:13px;letter-spacing:.04em}
+    .muted {color:var(--muted)}
+    .panel {
+      background:var(--panel);border:1px solid var(--line);
+      padding:24px;margin:24px 0;
+    }
+    .panel h3 {margin-top:0}
+    label {
+      display:block;font-size:14px;color:#ccc;margin:16px 0 8px;
+    }
+    input,textarea {
+      display:block;width:100%;background:#101010;
+      border:1px solid #505050;border-radius:2px;
+      color:var(--ink);padding:12px;outline:none;
+    }
+    textarea {min-height:110px;resize:vertical;line-height:1.6}
+    input:focus,textarea:focus {border-color:var(--accent)}
+    .row {display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .row > .grow {flex:1 1 180px}
+    .button {
+      background:#f5f5f5;color:#111;border:1px solid #f5f5f5;
+      padding:11px 17px;font-size:14px;font-weight:700;
+    }
+    .button:hover {background:var(--accent);border-color:var(--accent)}
+    .button.ghost {
+      background:transparent;color:var(--ink);border-color:#606060;
+    }
+    .button.ghost:hover {
+      border-color:var(--accent);color:var(--accent);
+    }
+    .text-button {
+      background:none;border:0;color:#bbb;padding:4px 0;
+      font-size:13px;text-decoration:underline;
+      text-underline-offset:3px;
+    }
+    .actions {
+      display:flex;gap:14px;align-items:center;
+      flex-wrap:wrap;margin-top:14px;
+    }
+    .article {border-top:1px solid var(--line);padding-top:32px}
+    .article h3 {
+      font-size:clamp(30px,5vw,52px);margin:12px 0 18px;
+    }
+    .article-body {
+      white-space:pre-wrap;overflow-wrap:anywhere;
+      line-height:1.85;font-size:17px;color:#ddd;
+    }
+    .comments {
+      margin-top:46px;border-top:1px solid var(--line);
+      padding-top:20px;
+    }
+    .comment {
+      padding:20px 0;border-bottom:1px solid #303030;
+    }
+    .comment.reply {
+      margin-left:28px;padding-left:18px;border-left:2px solid #444;
+    }
+    .comment p {
+      white-space:pre-wrap;overflow-wrap:anywhere;
+      margin:10px 0;color:#ddd;
+    }
+    .comment-head {
+      display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+    }
+    .comment-head strong {font-size:15px}
+    .comment-head time {font-size:12px;color:#888}
+    .form-error {
+      color:#ffaaa3;min-height:1.2em;font-size:13px;
+    }
+    .status {
+      font-size:14px;min-height:1.5em;color:var(--accent);
+    }
+    .empty {padding:26px 0;color:#999}
+    #site-admin {
+      padding:45px 0;border-top:1px solid var(--line);
+    }
+    footer {
+      border-top:1px solid var(--line);
+      padding:24px 0 45px;color:#777;font-size:13px;
+    }
+    [hidden] {display:none!important}
+    @media(max-width:600px) {
+      .wrap {padding:0 22px}
+      .hero {min-height:82svh}
+      section.content {padding-top:65px;padding-bottom:75px}
+      .panel {padding:18px}
+      .comment.reply {margin-left:12px}
+    }
+    @media(prefers-reduced-motion:reduce) {
+      html {scroll-behavior:auto}
+    }
+  </style>
+</head>
+<body>
+  <header id="home" class="wrap hero">
+    <h1>JEONG<br>HODU</h1>
+    <div class="subtitle">PHILOSOPHY · LAW · IDEAS</div>
+    <nav aria-label="주요 메뉴">
+      <a href="#about">ABOUT</a>
+      <a href="#writing">WRITING</a>
+      <a href="#projects">PROJECTS</a>
+      <a href="#contact">CONTACT</a>
+    </nav>
+  </header>
+
+  <section id="about" class="content"><div class="wrap">
+    <span class="eyebrow">01 / PROFILE</span>
+    <h2>ABOUT</h2>
+    <p class="lead">
+      Philosophy student based in Seoul. Interested in law,
+      politics, institutions, strategy, and the structure of ideas.
+    </p>
+  </div></section>
+
+  <section id="writing" class="content"><div class="wrap">
+    <span class="eyebrow">02 / NOTES & ESSAYS</span>
+    <h2>WRITING</h2>
+    <p class="lead">철학, 법, 역사, 정치, 아이디어에 관한 글.</p>
+    <div class="toolbar">
+      <h3>글 목록</h3>
+      <button class="button ghost admin-only"
+              hidden data-compose="writing">새 글</button>
+    </div>
+    <div id="writing-view" aria-live="polite"></div>
+  </div></section>
+
+  <section id="projects" class="content"><div class="wrap">
+    <span class="eyebrow">03 / WORK IN PROGRESS</span>
+    <h2>PROJECTS</h2>
+    <p class="lead">공부, 연구, 실험의 기록.</p>
+    <div class="toolbar">
+      <h3>프로젝트 목록</h3>
+      <button class="button ghost admin-only"
+              hidden data-compose="projects">새 프로젝트</button>
+    </div>
+    <div id="projects-view" aria-live="polite"></div>
+  </div></section>
+
+  <section id="contact" class="content"><div class="wrap">
+    <span class="eyebrow">04 / GUESTBOOK</span>
+    <h2>CONTACT</h2>
+    <p class="lead">
+      방명록에 메시지를 남겨주세요. 공개 게시판이므로
+      이메일이나 전화번호 같은 개인정보는 쓰지 마세요.
+    </p>
+    <div id="contact-view" aria-live="polite"></div>
+  </div></section>
+
+  <aside id="site-admin"><div class="wrap">
+    <button id="admin-toggle" class="text-button">
+      관리자 로그인
+    </button>
+    <form id="login-form" class="panel" hidden>
+      <h3>관리자 로그인</h3>
+      <p>
+        글 작성을 위한 계정입니다.
+        방문자는 로그인 없이 댓글을 남길 수 있습니다.
+      </p>
+      <label for="admin-email">이메일</label>
+      <input id="admin-email" type="email"
+             autocomplete="username" required>
+      <label for="admin-password">비밀번호</label>
+      <input id="admin-password" type="password"
+             autocomplete="current-password" required>
+      <div class="actions">
+        <button class="button" type="submit">로그인</button>
+      </div>
+      <p id="login-error" class="form-error" role="alert"></p>
+    </form>
+    <p id="admin-status" class="status" role="status"></p>
+  </div></aside>
+
+  <footer><div class="wrap">
+    © JEONG HODU · <a href="#home">맨 위로</a>
+  </div></footer>
+
+  <script>
+    const SUPABASE_URL = 'https://hlichvobeqkaluwcimod.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_OOeZMF3jXV_A8ydqQS1x7w_Ghih7OhU';
+  </script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    'use strict';
+
+    const configured =
+      !SUPABASE_URL.includes('hlichvobeqkaluwcimod') &&
+      SUPABASE_PUBLISHABLE_KEY !== 'sb_publishable_OOeZMF3jXV_A8ydqQS1x7w_Ghih7OhU';
+
+    const client = configured && window.supabase
+      ? window.supabase.createClient(
+          SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY
+        )
+      : null;
+
+    let isAdmin = false;
+    const posts = {writing:[],projects:[]};
+    const views = {
+      writing:document.querySelector('#writing-view'),
+      projects:document.querySelector('#projects-view')
+    };
+
+    const el = (tag,className,content) => {
+      const node = document.createElement(tag);
+      if(className) node.className = className;
+      if(content !== undefined) node.textContent = content;
+      return node;
+    };
+
+    const button = (label,action,className='text-button') => {
+      const node = el('button',className,label);
+      node.type = 'button';
+      node.addEventListener('click',action);
+      return node;
+    };
+
+    const date = value =>
+      new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium'})
+        .format(new Date(value));
+
+    function handleError(container,error) {
+      container.replaceChildren(
+        el('p','form-error',
+          error.message || '잠시 후 다시 시도해 주세요.')
+      );
+    }
+
+    async function rpc(name,args={}) {
+      if(!client) {
+        throw new Error(
+          '사이트 설정이 아직 끝나지 않았습니다. ' +
+          'Supabase URL과 publishable key를 확인해 주세요.'
+        );
+      }
+      const {data,error} = await client.rpc(name,args);
+      if(error) throw error;
+      return data;
+    }
+
+    function renderPosts(category) {
+      const view = views[category];
+      const list = el('div','list');
+
+      for(const item of posts[category]) {
+        const card = el('article','entry');
+
+        card.append(
+          button(
+            item.title,
+            () => renderArticle(category,item),
+            'title'
+          )
+        );
+        card.append(
+          el('div','meta',
+            date(item.created_at) +
+            (item.updated_at !== item.created_at
+              ? ' · 수정됨' : '')
+          )
+        );
+        card.append(
+          el('p','',
+            item.body.slice(0,165) +
+            (item.body.length > 165 ? '…' : '')
+          )
+        );
+
+        if(isAdmin) {
+          const actions = el('div','actions');
+          actions.append(
+            button('수정',() => renderEditor(category,item))
+          );
+          actions.append(
+            button('삭제',async () => {
+              if(!confirm(
+                '이 글과 모든 댓글을 삭제할까요? ' +
+                '되돌릴 수 없습니다.'
+              )) return;
+              try {
+                await rpc('remove_post',{p_id:item.id});
+                await loadPosts(category);
+              } catch(e) {
+                alert(e.message);
+              }
+            })
+          );
+          card.append(actions);
+        }
+
+        list.append(card);
+      }
+
+      view.replaceChildren(list);
+      if(!posts[category].length) {
+        view.append(
+          el('p','empty','아직 등록된 글이 없습니다.')
+        );
+      }
+    }
+
+    async function loadPosts(category) {
+      try {
+        posts[category] =
+          await rpc('list_posts',{p_category:category});
+        renderPosts(category);
+      } catch(e) {
+        handleError(views[category],e);
+      }
+    }
+
+    function renderEditor(category,item=null) {
+      const view = views[category];
+      const form = el('form','panel');
+      form.append(el('h3','',item ? '글 수정' : '새 글'));
+
+      const titleLabel = el('label','','제목');
+      const title = el('input');
+      title.required = true;
+      title.maxLength = 120;
+      title.value = item?.title || '';
+      titleLabel.append(title);
+
+      const bodyLabel = el('label','','내용');
+      const body = el('textarea');
+      body.required = true;
+      body.maxLength = 30000;
+      body.rows = 14;
+      body.value = item?.body || '';
+      bodyLabel.append(body);
+
+      const error = el('p','form-error');
+      const actions = el('div','actions');
+      const submit =
+        el('button','button',item ? '수정 저장' : '게시');
+      submit.type = 'submit';
+
+      actions.append(
+        submit,
+        button('취소',() => renderPosts(category))
+      );
+      form.append(titleLabel,bodyLabel,actions,error);
+      view.replaceChildren(form);
+      title.focus();
+
+      form.addEventListener('submit',async event => {
+        event.preventDefault();
+        submit.disabled = true;
+        error.textContent = '';
+
+        try {
+          await rpc('save_post',{
+            p_id:item?.id || null,
+            p_category:category,
+            p_title:title.value.trim(),
+            p_body:body.value.trim()
+          });
+          await loadPosts(category);
+        } catch(e) {
+          error.textContent = e.message;
+          submit.disabled = false;
+        }
+      });
+    }
+
+    async function renderArticle(category,item) {
+      const view = views[category];
+      const article = el('article','article');
+
+      article.append(
+        button('← 목록으로',() => renderPosts(category))
+      );
+      article.append(
+        el('h3','',item.title),
+        el('div','meta',date(item.created_at))
+      );
+      article.append(el('div','article-body',item.body));
+
+      const comments = el('div','comments');
+      article.append(comments);
+      view.replaceChildren(article);
+
+      await renderComments(comments,category,item.id);
+    }
+
+    async function renderComments(
+      target,category,postId=null
+    ) {
+      target.replaceChildren(
+        el('h3','','댓글'),
+        el('p','muted',
+          '불특정 다수가 볼 수 있습니다. ' +
+          '닉네임·비밀번호로 나중에 수정하거나 삭제할 수 있습니다.')
+      );
+
+      const list = el('div','list');
+      target.append(list);
+
+      try {
+        const comments = await rpc('list_comments',{
+          p_category:category,
+          p_post_id:postId
+        });
+
+        target.querySelector('h3').textContent =
+          category === 'contact'
+            ? `방명록 (${comments.length})`
+            : `댓글 (${comments.length})`;
+
+        if(!comments.length) {
+          list.append(
+            el('p','empty','첫 메시지를 남겨 주세요.')
+          );
+        }
+
+        const byParent = new Map();
+        for(const c of comments) {
+          const key = c.parent_id || 0;
+          if(!byParent.has(key)) byParent.set(key,[]);
+          byParent.get(key).push(c);
+        }
+
+        function addChildren(parent,depth=0) {
+          for(const c of byParent.get(parent) || []) {
+            const card = el(
+              'article',
+              'comment' + (depth ? ' reply' : '')
+            );
+            const head = el('div','comment-head');
+            head.append(
+              el('strong','',c.nickname),
+              el('time','',
+                date(c.created_at) +
+                (c.updated_at !== c.created_at
+                  ? ' · 수정됨' : '')
+              )
+            );
+            card.append(head,el('p','',c.body));
+
+            const actions = el('div','actions');
+            if(depth === 0) {
+              actions.append(
+                button('답글',() =>
+                  showCommentForm(
+                    target,category,postId,c.id,
+                    `@${c.nickname} 답글`
+                  )
+                )
+              );
+            }
+            actions.append(
+              button('수정',() =>
+                showManageForm(
+                  card,c,false,
+                  () => renderComments(
+                    target,category,postId
+                  )
+                )
+              )
+            );
+            actions.append(
+              button('삭제',() =>
+                showManageForm(
+                  card,c,true,
+                  () => renderComments(
+                    target,category,postId
+                  )
+                )
+              )
+            );
+
+            card.append(actions);
+            list.append(card);
+            addChildren(c.id,depth+1);
+          }
+        }
+        addChildren(0);
+      } catch(e) {
+        list.append(el('p','form-error',e.message));
+      }
+
+      target.append(
+        button(
+          '댓글 남기기',
+          () => showCommentForm(
+            target,category,postId,null,'새 댓글'
+          ),
+          'button ghost'
+        )
+      );
+    }
+
+    function showCommentForm(
+      target,category,postId,parentId,title
+    ) {
+      target.querySelector('.comment-form')?.remove();
+
+      const form = el('form','panel comment-form');
+      form.append(el('h3','',title));
+
+      const row = el('div','row');
+      const nWrap = el('div','grow');
+      const pWrap = el('div','grow');
+      const nick = el('input');
+      const pass = el('input');
+      const body = el('textarea');
+      const error = el('p','form-error');
+
+      nick.placeholder = '닉네임 (2~24자)';
+      nick.required = true;
+      nick.maxLength = 24;
+
+      pass.placeholder =
+        '수정·삭제용 비밀번호 (8자 이상)';
+      pass.type = 'password';
+      pass.required = true;
+      pass.minLength = 8;
+      pass.autocomplete = 'new-password';
+
+      nWrap.append(el('label','','닉네임'),nick);
+      pWrap.append(el('label','','비밀번호'),pass);
+      row.append(nWrap,pWrap);
+
+      body.placeholder = '메시지 (최대 2000자)';
+      body.required = true;
+      body.maxLength = 2000;
+
+      const bodyLabel = el('label','','내용');
+      bodyLabel.append(body);
+
+      const submit = el('button','button','등록');
+      submit.type = 'submit';
+      const actions = el('div','actions');
+      actions.append(
+        submit,
+        button('취소',() => form.remove())
+      );
+
+      form.append(row,bodyLabel,actions,error);
+      target.append(form);
+      form.scrollIntoView({
+        block:'nearest',behavior:'smooth'
+      });
+      nick.focus();
+
+      form.addEventListener('submit',async event => {
+        event.preventDefault();
+        submit.disabled = true;
+        error.textContent = '';
+
+        try {
+          await rpc('add_comment',{
+            p_category:category,
+            p_post_id:postId,
+            p_parent_id:parentId,
+            p_nickname:nick.value.trim(),
+            p_password:pass.value,
+            p_body:body.value.trim()
+          });
+          await renderComments(target,category,postId);
+        } catch(e) {
+          error.textContent = e.message;
+          submit.disabled = false;
+        }
+      });
+    }
+
+    function showManageForm(
+      card,c,deleting,refresh
+    ) {
+      card.querySelector('.manage-form')?.remove();
+
+      const form = el('form','panel manage-form');
+      form.append(
+        el('h3','',
+          deleting ? '댓글 삭제' : '댓글 수정'
+        )
+      );
+
+      const pass = el('input');
+      const error = el('p','form-error');
+      pass.type = 'password';
+      pass.placeholder = isAdmin
+        ? '관리자라면 비워도 됩니다'
+        : '작성할 때 입력한 비밀번호';
+      pass.autocomplete = 'current-password';
+      pass.required = !isAdmin;
+
+      const passLabel =
+        el('label','','댓글 비밀번호');
+      passLabel.append(pass);
+      form.append(passLabel);
+
+      let body;
+      if(!deleting) {
+        body = el('textarea');
+        body.value = c.body;
+        body.required = true;
+        body.maxLength = 2000;
+        const label = el('label','','수정 내용');
+        label.append(body);
+        form.append(label);
+      }
+
+      const actions = el('div','actions');
+      const submit = el(
+        'button','button',
+        deleting ? '삭제 확인' : '저장'
+      );
+      submit.type = 'submit';
+      actions.append(
+        submit,
+        button('취소',() => form.remove())
+      );
+      form.append(actions,error);
+      card.append(form);
+      (deleting ? pass : body).focus();
+
+      form.addEventListener('submit',async event => {
+        event.preventDefault();
+        submit.disabled = true;
+        error.textContent = '';
+
+        try {
+          const result =
+            await rpc('manage_comment',{
+              p_id:c.id,
+              p_password:pass.value,
+              p_body:deleting
+                ? null
+                : body.value.trim(),
+              p_delete:deleting
+            });
+
+          if(result === 'ok') {
+            await refresh();
+          } else {
+            error.textContent = ({
+              wrong_password:
+                '비밀번호가 일치하지 않습니다.',
+              locked:
+                '비밀번호 오류가 많아 15분 후 다시 시도할 수 있습니다.',
+              not_found:
+                '댓글을 찾을 수 없습니다.',
+              invalid:
+                '내용을 확인해 주세요.'
+            })[result] || '다시 시도해 주세요.';
+            submit.disabled = false;
+          }
+        } catch(e) {
+          error.textContent = e.message;
+          submit.disabled = false;
+        }
+      });
+    }
+
+    async function refreshAdmin() {
+      try {
+        isAdmin = !!(await rpc('am_i_admin'));
+      } catch {
+        isAdmin = false;
+      }
+
+      document.querySelectorAll('.admin-only')
+        .forEach(node => node.hidden = !isAdmin);
+      document.querySelector('#admin-toggle')
+        .textContent = isAdmin
+          ? '관리자 로그아웃'
+          : '관리자 로그인';
+      document.querySelector('#admin-status')
+        .textContent = isAdmin
+          ? '관리자로 로그인됨'
+          : '';
+      document.querySelector('#login-form')
+        .hidden = true;
+
+      renderPosts('writing');
+      renderPosts('projects');
+    }
+
+    document.querySelectorAll('[data-compose]')
+      .forEach(node => node.addEventListener(
+        'click',
+        () => renderEditor(node.dataset.compose)
+      ));
+
+    document.querySelector('#admin-toggle')
+      .addEventListener('click',async () => {
+        if(isAdmin) {
+          await client.auth.signOut();
+          await refreshAdmin();
+        } else {
+          const form =
+            document.querySelector('#login-form');
+          form.hidden = !form.hidden;
+        }
+      });
+
+    document.querySelector('#login-form')
+      .addEventListener('submit',async event => {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const submit =
+          form.querySelector('[type=submit]');
+        submit.disabled = true;
+
+        const err = form.querySelector(
+          '#login-error'
+        );
+        err.textContent = '';
+
+        try {
+          if(!client) {
+            throw new Error(
+              'Supabase 설정을 먼저 완료해 주세요.'
+            );
+          }
+
+          const {error} =
+            await client.auth.signInWithPassword({
+              email:form.querySelector(
+                '#admin-email'
+              ).value,
+              password:form.querySelector(
+                '#admin-password'
+              ).value
+            });
+
+          if(error) throw error;
+
+          form.querySelector(
+            '#admin-password'
+          ).value = '';
+
+          await refreshAdmin();
+
+          if(!isAdmin) {
+            await client.auth.signOut();
+            throw new Error(
+              '이 계정은 글 작성 권한이 없습니다.'
+            );
+          }
+        } catch(e) {
+          err.textContent = e.message;
+          form.hidden = false;
+        } finally {
+          submit.disabled = false;
+        }
+      });
+
+    async function init() {
+      await Promise.all([
+        loadPosts('writing'),
+        loadPosts('projects'),
+        renderComments(
+          document.querySelector('#contact-view'),
+          'contact'
+        )
+      ]);
+
+      if(client) {
+        const {data} = await client.auth.getSession();
+        if(data.session) await refreshAdmin();
+      }
+    }
+
+    init();
+  })();
+  </script>
+</body>
+</html>
