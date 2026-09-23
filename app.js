@@ -65,7 +65,7 @@
     const actions=el('div','actions');
     const close=()=>{target.replaceChildren();target.hidden=true;list.hidden=false;document.querySelector('#compose').hidden=!isAdmin;};
     actions.append(submit,button('취소',close,'button ghost'));
-    form.append(titleLabel,bodyLabel,actions,error);target.replaceChildren(form);
+    form.append(titleLabel,bodyLabel,el('p','editor-note','다른 사람의 글이나 연설문을 옮긴 경우 원저자와 출처를 본문에 적어주세요.'),actions,error);target.replaceChildren(form);
     target.hidden=false;list.hidden=true;document.querySelector('#compose').hidden=true;title.focus();
     form.addEventListener('submit',async event=>{
       event.preventDefault();submit.disabled=true;error.textContent='';
@@ -89,6 +89,17 @@
     document.querySelector('#post-title').textContent=currentPost.title;
     document.querySelector('#post-date').textContent=date(currentPost.created_at);
     document.querySelector('#post-body').textContent=currentPost.body;
+    const neighbors=document.querySelector('#post-neighbors');
+    neighbors.replaceChildren();
+    const currentIndex=posts.findIndex(post=>String(post.id)===requestedId);
+    for(const [neighbor,label] of [[posts[currentIndex+1],'이전 글'],[posts[currentIndex-1],'다음 글']]){
+      if(!neighbor)continue;
+      const link=el('a','neighbor-link');
+      link.href=`post.html?category=${category}&id=${encodeURIComponent(neighbor.id)}`;
+      link.append(el('small','',label),el('strong','',neighbor.title),el('span','neighbor-arrow','↗'));
+      neighbors.append(link);
+    }
+    neighbors.hidden=!neighbors.childElementCount;
     document.querySelector('#post').hidden=false;
     document.querySelector('#post-actions').hidden=!isAdmin;
     await renderComments(document.querySelector('#comments'),category,currentPost.id);
@@ -105,7 +116,7 @@
     titleLabel.append(title);bodyLabel.append(body);
     const actions=el('div','actions'),submit=el('button','button','수정 저장');submit.type='submit';
     actions.append(submit,button('취소',()=>target.replaceChildren(),'button ghost'));
-    form.append(titleLabel,bodyLabel,actions,error);target.replaceChildren(form);title.focus();
+    form.append(titleLabel,bodyLabel,el('p','editor-note','다른 사람의 글이나 연설문을 옮긴 경우 원저자와 출처를 본문에 적어주세요.'),actions,error);target.replaceChildren(form);title.focus();
     form.addEventListener('submit',async event=>{
       event.preventDefault();submit.disabled=true;error.textContent='';
       try{
@@ -162,6 +173,9 @@
           if(!byParent.has(key)) byParent.set(key,[]);
           byParent.get(key).push(c);
         }
+        byParent.get(0)?.sort((a,b)=>
+          new Date(b.created_at)-new Date(a.created_at) || b.id-a.id
+        );
 
         function addChildren(parent,depth=0) {
           for(const c of byParent.get(parent) || []) {
@@ -454,13 +468,13 @@
         }
       });
     }
-    if(page!=='contact')setupAdmin();
+    setupAdmin();
     if(page==='writing'||page==='projects')await loadList();
     if(page==='contact')await renderComments(document.querySelector('#comments'),'contact');
     if(page==='post'){
       try{await loadPost();}catch(e){document.querySelector('#page-error').textContent=e.message;}
     }
-    if(page!=='contact'&&client){
+    if(client){
       const {data}=await client.auth.getSession();
       if(data.session)await refreshAdmin();
     }
