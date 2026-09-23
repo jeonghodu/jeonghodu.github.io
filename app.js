@@ -43,7 +43,13 @@
         row.append(link);list.append(row);
       }
       target.replaceChildren(list);
-      if(!posts.length)target.append(el('p','empty','아직 등록된 글이 없습니다.'));
+      if(!posts.length){
+        const empty=el('div','empty-state');
+        empty.append(el('span','eyebrow','COMING SOON'),el('h3','',category==='projects'?'첫 프로젝트를 준비 중입니다.':'첫 글을 준비 중입니다.'));
+        empty.append(el('p','muted',category==='projects'?'진행 중인 공부와 실험을 곧 이곳에 기록할게요. 그동안 글을 둘러보세요.':'새 글이 공개되면 여기서 제목을 확인할 수 있습니다.'));
+        if(category==='projects'){const link=el('a','pill secondary','글 보러 가기 ↗');link.href='writing.html';empty.append(link);}
+        target.replaceChildren(empty);
+      }
     }catch(error){showError(target,error);}
   }
 
@@ -124,6 +130,12 @@
           '닉네임·비밀번호로 나중에 수정하거나 삭제할 수 있습니다.')
       );
 
+      if(category==='contact'){
+        const write=button('방명록 남기기 ↗',()=>showCommentForm(target,category,postId,null,'새 방명록'),'button');
+        write.classList.add('comment-start');
+        target.append(write);
+      }
+
       const list = el('div','comment-list');
       target.append(list);
 
@@ -166,7 +178,18 @@
                   ? ' · 수정됨' : '')
               )
             );
-            card.append(head,el('p','',c.body));
+            const content=el('p','',c.body);
+            card.append(head,content);
+            if(c.body.length>360){
+              content.classList.add('comment-preview');
+              const expand=button('더 보기',()=>{
+                const expanded=content.classList.toggle('expanded');
+                expand.textContent=expanded?'접기':'더 보기';
+                expand.setAttribute('aria-expanded',String(expanded));
+              });
+              expand.setAttribute('aria-expanded','false');
+              card.append(expand);
+            }
 
             const actions = el('div','actions');
             if(depth === 0) {
@@ -419,6 +442,17 @@
     if(page==='post'){
       document.querySelector('#edit-post').addEventListener('click',editPost);
       document.querySelector('#delete-post').addEventListener('click',deletePost);
+      document.querySelector('#share-post').addEventListener('click',async event=>{
+        const control=event.currentTarget;
+        try{
+          await navigator.clipboard.writeText(location.href);
+          control.textContent='복사 완료 ✓';
+          setTimeout(()=>{control.textContent='링크 복사 ↗';},2400);
+        }catch{
+          control.textContent='주소창에서 링크를 복사해 주세요';
+          setTimeout(()=>{control.textContent='링크 복사 ↗';},3000);
+        }
+      });
     }
     if(page!=='contact')setupAdmin();
     if(page==='writing'||page==='projects')await loadList();
