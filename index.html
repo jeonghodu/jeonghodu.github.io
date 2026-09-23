@@ -254,9 +254,9 @@
   (() => {
     'use strict';
 
-    const configured =
-      !SUPABASE_URL.includes('hlichvobeqkaluwcimod') &&
-      SUPABASE_PUBLISHABLE_KEY !== 'sb_publishable_OOeZMF3jXV_A8ydqQS1x7w_Ghih7OhU';
+const configured =
+  !SUPABASE_URL.includes('YOUR_PROJECT_REF') &&
+  SUPABASE_PUBLISHABLE_KEY !== 'YOUR_PUBLISHABLE_KEY';;
 
     const client = configured && window.supabase
       ? window.supabase.createClient(
