@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="정호두의 글과 프로젝트, 철학과 법에 관한 기록">
+  <title>Projects — JEONG HODU</title><link rel="stylesheet" href="styles.css">
+  
+</head><body data-page="projects">
+  <header class="site-nav"><div class="container nav-inner">
+      <a class="wordmark" href="index.html" aria-label="JEONG HODU 홈">JH<span>·</span></a>
+      <nav class="nav-links" aria-label="주요 메뉴"><a href="about.html">ABOUT</a><a href="writing.html">WRITING</a><a href="projects.html" aria-current="page">PROJECTS</a><a href="contact.html">CONTACT</a></nav>
+    </div></header>
+  <main>
+      <section class="page-intro container"><span class="eyebrow">03 / WORK</span><h1>Projects.</h1><p>공부, 연구, 실험의 기록. 제목을 누르면 프로젝트 페이지로 이동합니다.</p></section>
+      <section class="page-surface"><div class="narrow">
+        <div class="toolbar"><h2>프로젝트 목록</h2><button id="compose" class="button" type="button" hidden>새 프로젝트</button></div>
+        <div id="editor" hidden></div><div id="post-list" aria-live="polite"><p class="muted">목록을 불러오는 중입니다.</p></div>
+      </div></section>
+    </main><aside class="admin-zone"><div class="narrow">
+      <button id="admin-toggle" class="text-button" type="button">관리자 로그인</button>
+      <span id="admin-status" class="status" role="status"></span>
+      <form id="login-form" class="form-panel" hidden>
+        <h3>관리자 로그인</h3>
+        <label for="admin-email">이메일</label><input id="admin-email" type="email" autocomplete="username" required>
+        <label for="admin-password">비밀번호</label><input id="admin-password" type="password" autocomplete="current-password" required>
+        <div class="actions"><button class="button" type="submit">로그인</button></div>
+        <p id="login-error" class="form-error" role="alert"></p>
+      </form>
+    </div></aside>
+  <footer class="site-footer"><div class="container footer-inner">
+      <span>© JEONG HODU</span>
+      <div class="footer-links"><a href="about.html">About</a><a href="writing.html">Writing</a><a href="projects.html">Projects</a><a href="contact.html">Contact</a></div>
+    </div></footer>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script><script src="app.js" defer></script>
+</body></html>
