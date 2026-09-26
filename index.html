@@ -38,6 +38,12 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{scroll-behavior:auto!important}}
 @media print{.saved-dialog,.saved-nav,.connection-status{display:none!important}}
 @media(min-width:801px) and (max-width:1000px){.nav-inner{gap:20px}.nav-links{gap:16px}.saved-nav{font-size:12px}}
+/* Long-form tables and discreet recovery controls. */
+.article-table-scroll{overflow-x:auto;overscroll-behavior-x:contain;max-width:100%;margin:30px 0;border:1px solid #394352;border-radius:8px;scrollbar-color:#61718b #111720}
+.article-table-scroll table{width:100%;border-collapse:collapse;font-size:.85em;line-height:1.7;min-width:420px}.article-table-scroll th,.article-table-scroll td{padding:13px 17px;border-bottom:1px solid #303a48;vertical-align:top;min-width:110px;overflow-wrap:anywhere}.article-table-scroll th{background:#1b2636;color:#e8ddc9;font-weight:600}.article-table-scroll tr:last-child td{border-bottom:0}.article-table-scroll tbody tr:nth-child(even){background:#ffffff03}
+.manuscript-backup{margin:20px 0;padding:17px 20px;border:1px solid #354254;border-radius:7px}.manuscript-backup summary{cursor:pointer;font-size:13px;color:#d4c4a9}.manuscript-backup[open] summary{margin-bottom:16px}.backup-status,.comment-draft-note{font-size:12px;color:#b8c5d7;line-height:1.7;margin:10px 0}.backup-status:empty{display:none}.comment-draft-tools{display:flex;align-items:center;justify-content:space-between;gap:15px}.comment-counter{font-size:12px;font-variant-numeric:tabular-nums;color:#aab7c8}.comment-draft-tools button{font-size:12px;min-height:40px}.comment-draft-note{margin-bottom:22px}
+@media(max-width:560px){.manuscript-backup{padding:15px}.manuscript-backup .actions{align-items:stretch}.manuscript-backup .button{font-size:12px}.article-table-scroll th,.article-table-scroll td{padding:11px 13px}}
+@media print{.article-table-scroll{overflow:visible;border:1px solid #aaa;break-inside:auto}.article-table-scroll table{min-width:0;font-size:9pt;table-layout:fixed}.article-table-scroll th,.article-table-scroll td{min-width:0;padding:7px;border-color:#aaa;background:#fff!important;color:#111!important}.article-table-scroll thead{display:table-header-group}.article-table-scroll tr{break-inside:avoid}}
 
 /* Single-file reading conveniences */
 .recent-reading{padding-block:65px 80px}.recent-reading .entry-link h3{font-size:23px}.reading-history-note{font-size:12px;margin:14px 0 0}.recent-reading .section-heading h2{font-size:36px}.resume-reading{display:flex;align-items:center;flex-wrap:wrap;gap:12px 22px;padding:16px 20px;margin:0 0 35px;border:1px solid #43516a;border-radius:8px;background:#141e2d;font-size:13px;color:#c2d1e6}.resume-reading .text-button{margin-left:auto}.resume-reading button{min-height:42px}.comment-actions button{min-height:42px}.font-button{min-width:42px;min-height:42px}.article-toc{max-height:42vh;overflow:auto;overscroll-behavior:contain;padding-right:4px}
@@ -232,11 +238,12 @@ function renderBody(target,body,format='plain'){
  let i=0,heading=0;
  while(i<lines.length){const line=lines[i];if(!line.trim()){i++;continue;}
   if(/^```/.test(line)){const code=[];i++;while(i<lines.length&&!/^```/.test(lines[i]))code.push(lines[i++]);i++;const pre=node('pre');pre.append(node('code','',code.join('\n')));target.append(pre);continue;}
+    const spec=tableSpec(lines,i);if(spec){const region=node('div','article-table-scroll');region.tabIndex=0;region.setAttribute('role','region');region.setAttribute('aria-label','본문 표 · 가로로 스크롤할 수 있습니다');const table=node('table'),thead=node('thead'),tr=node('tr');spec.heads.forEach((value,j)=>{const th=node('th');th.scope='col';th.style.textAlign=spec.align[j];inline(th,value);tr.append(th);});thead.append(tr);table.append(thead);const tbody=node('tbody');i+=2;while(i<lines.length&&lines[i].trim()&&lines[i].includes('|')){const cells=tableCells(lines[i]);if(cells.length!==spec.heads.length)break;const row=node('tr');cells.forEach((value,j)=>{const td=node('td');td.style.textAlign=spec.align[j];inline(td,value);row.append(td);});tbody.append(row);i++;}table.append(tbody);region.append(table);target.append(region);continue;}
   const hm=/^(#{1,4})\s+(.+)$/.exec(line);if(hm){const h=node(`h${Math.max(2,hm[1].length)}`);h.id=`${prefix}section-${++heading}`;inline(h,hm[2]);target.append(h);i++;continue;}
   if(/^\s*---+\s*$/.test(line)){target.append(node('hr'));i++;continue;}
   if(/^>\s?/.test(line)){const quote=[];while(i<lines.length&&/^>\s?/.test(lines[i]))quote.push(lines[i++].replace(/^>\s?/,''));const block=node('blockquote');inline(block,quote.join('\n'));target.append(block);continue;}
   if(/^\s*(?:[-*]|\d+\.)\s+/.test(line)){const ordered=/^\s*\d+\./.test(line),list=node(ordered?'ol':'ul'),re=ordered?/^\s*\d+\.\s+/:/^\s*[-*]\s+/;while(i<lines.length&&re.test(lines[i])){const li=node('li');inline(li,lines[i++].replace(re,''));list.append(li);}target.append(list);continue;}
-  const block=[line];i++;while(i<lines.length&&lines[i].trim()&&!/^(?:#{1,4}\s|>\s?|```|\s*(?:[-*]|\d+\.)\s+|\s*---+\s*$)/.test(lines[i]))block.push(lines[i++]);const p=node('p');inline(p,block.join('\n'));target.append(p);
+  const block=[line];i++;while(i<lines.length&&lines[i].trim()&&!tableSpec(lines,i)&&!/^(?:#{1,4}\s|>\s?|```|\s*(?:[-*]|\d+\.)\s+|\s*---+\s*$)/.test(lines[i]))block.push(lines[i++]);const p=node('p');inline(p,block.join('\n'));target.append(p);
  }
  if(notes.size){const section=node('section','footnotes'),h=node('h2','','주와 참고');h.id=prefix+'references';section.append(h);const list=node('ol');for(const n of notes.values()){const li=node('li');li.id=`${prefix}fn-${n.number}`;li.value=n.number;inline(li,n.text,false);for(let r=1;r<=n.refs;r++){const a=link(` ↩${r>1?r:''}`,`#${prefix}ref-${n.number}-${r}`);a.setAttribute('aria-label',`주 ${n.number}의 본문 ${r}로 돌아가기`);li.append(a);}list.append(li);}section.append(list);target.append(section);}
 }
@@ -321,14 +328,14 @@ async function openEditor(post){
  const values=()=>Object.fromEntries(new FormData(form));
  const persist=()=>{try{localStorage.setItem(key,JSON.stringify({savedAt:new Date().toISOString(),values:values()}));draftStatus.textContent='이 기기에 임시 저장됨 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});}catch{draftStatus.textContent='이 브라우저에서 임시 저장을 사용할 수 없습니다.';}};
  try{const saved=JSON.parse(localStorage.getItem(key)||'null');if(saved?.values){const restore=node('div','draft-notice');restore.append(node('span','',`${date(saved.savedAt)}에 작성한 임시 저장본이 있습니다.`),btn('불러오기',()=>{for(const [name,value] of Object.entries(saved.values)){const control=form.elements.namedItem(name);if(control&&!control.disabled)control.value=value;}dirty=true;restore.remove();if(!preview.hidden)renderBody(preview,body.value,format.value);form.dispatchEvent(new Event('input',{bubbles:true}));notify('임시 저장본을 불러왔습니다.');},'button ghost'),btn('임시 저장 삭제',()=>{localStorage.removeItem(key);restore.remove();}));header.after(restore);}}catch{}
- const flush=()=>{clearTimeout(timer);if(dirty)persist();};const visibility=()=>{if(document.hidden)flush();};const shortcut=e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();clearTimeout(timer);persist();notify('원고를 이 기기에 임시 저장했습니다.');}};window.addEventListener('pagehide',flush);document.addEventListener('visibilitychange',visibility);form.addEventListener('keydown',shortcut);editorCleanup=()=>{flush();window.removeEventListener('pagehide',flush);document.removeEventListener('visibilitychange',visibility);};enhanceEditor(form,body,format,preview);
+ const flush=()=>{clearTimeout(timer);if(dirty)persist();};const visibility=()=>{if(document.hidden)flush();};const shortcut=e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();clearTimeout(timer);persist();notify('원고를 이 기기에 임시 저장했습니다.');}};window.addEventListener('pagehide',flush);document.addEventListener('visibilitychange',visibility);form.addEventListener('keydown',shortcut);editorCleanup=()=>{flush();window.removeEventListener('pagehide',flush);document.removeEventListener('visibilitychange',visibility);};enhanceEditor(form,body,format,preview);setupManuscriptBackup(form,body,format,preview);
  form.addEventListener('input',()=>{dirty=true;clearTimeout(timer);timer=setTimeout(persist,500);});
  form.addEventListener('submit',async e=>{
-  e.preventDefault();if(!isAdmin)return;clearTimeout(timer);persist();save.disabled=true;alert.textContent='';
+  e.preventDefault();if(!isAdmin||save.disabled)return;clearTimeout(timer);persist();save.disabled=true;alert.textContent='';
   const v=values();if(!v.title?.trim()||!v.body?.trim()){alert.textContent='제목과 본문을 입력해 주세요.';save.disabled=false;return;}
-  try{const id=await rpc(modern?'archive_save':'save_post',{p_id:post?.id||null,p_category:category,p_title:v.title.trim(),p_body:v.body.trim(),...(modern?{p_meta:{topic:v.topic,entry_type:v.entry_type,project_state:v.project_state,body_format:v.body_format,abstract:v.abstract,author_name:v.author_name,source_name:v.source_name,source_url:v.source_url}}:{})});
+  const releaseForm=holdForm(form,save,'저장 중…');try{const id=await rpc(modern?'archive_save':'save_post',{p_id:post?.id||null,p_category:category,p_title:v.title.trim(),p_body:v.body.trim(),...(modern?{p_meta:{topic:v.topic,entry_type:v.entry_type,project_state:v.project_state,body_format:v.body_format,abstract:v.abstract,author_name:v.author_name,source_name:v.source_name,source_url:v.source_url}}:{})});
    dirty=false;try{localStorage.removeItem(key);}catch{}legacyCache.delete(category);if(post){closeEditor();await loadPost();notify('기록을 수정했습니다.');}else location.href=postUrl({id});
-  }catch(error){alert.textContent=error.message||'저장하지 못했습니다. 임시 저장본은 이 기기에 남아 있습니다.';save.disabled=false;}
+  }catch(error){alert.textContent=error.message||'저장하지 못했습니다. 임시 저장본은 이 기기에 남아 있습니다.';save.disabled=false;}finally{releaseForm();}
  });
  target.scrollIntoView({block:'start',behavior:'smooth'});title.focus({preventScroll:true});
 }
@@ -360,7 +367,7 @@ async function renderDiscussion(target,cat,id=null,currentPage=1){
  const heading=node('div','discussion-heading'),title=node('h2','',cat==='contact'?'방명록':'댓글과 대화');heading.append(title);
  const composer=node('div','discussion-composer'),list=node('div','comment-list'),pagination=node('nav','pagination');pagination.setAttribute('aria-label','댓글 페이지');
  const compose=()=>commentForm(composer,cat,id,null,()=>renderDiscussion(target,cat,id,1));
- heading.append(btn(cat==='contact'?'글 남기기':'댓글 남기기',compose,'button ghost'));
+ heading.append(btn(readCommentDraft(cat,id,null)?'이어서 작성':cat==='contact'?'글 남기기':'댓글 남기기',compose,'button ghost'));
  target.replaceChildren(heading,node('p','discussion-note','공개되는 대화입니다. 닉네임과 작성 시 설정한 비밀번호로 수정·삭제할 수 있습니다.'),composer,list,pagination);
  list.append(node('p','muted','대화를 불러오는 중입니다.'));
  try{const result=await discussion(cat,id,currentPage);if(!target.contains(list))return;list.replaceChildren();title.textContent=`${cat==='contact'?'방명록':'댓글과 대화'} (${result.total})`;
@@ -382,9 +389,9 @@ function commentForm(target,cat,id,parent,refresh){
  const grid=node('div','form-grid');form.append(grid);const nickname=field(grid,'닉네임','nickname'),password=field(grid,'수정·삭제 비밀번호','password');nickname.required=true;nickname.minLength=2;nickname.maxLength=24;nickname.autocomplete='nickname';password.type='password';password.required=true;password.minLength=8;password.autocomplete='new-password';
  const body=field(form,'내용','body','textarea');body.required=true;body.maxLength=2000;body.rows=5;
  form.append(node('p','editor-note','닉네임 2–24자 · 비밀번호 8자 이상. 비밀번호는 복구할 수 없으니 기억해 주세요.'));
- const actions=node('div','actions'),submit=node('button','button','등록');submit.type='submit';actions.append(submit,btn('취소',()=>target.replaceChildren(),'button ghost'));const error=node('p','form-error');error.setAttribute('role','alert');form.append(actions,error);target.replaceChildren(form);target.scrollIntoView({block:'center',behavior:'smooth'});nickname.focus({preventScroll:true});
- form.addEventListener('submit',async e=>{e.preventDefault();error.textContent='';if(nickname.value.trim().length<2||!body.value.trim()){error.textContent='닉네임과 내용을 확인해 주세요.';return;}if(new TextEncoder().encode(password.value).length>72){error.textContent='비밀번호는 영문 약 72자, 한글 약 24자 이내로 입력해 주세요.';return;}
-  submit.disabled=true;try{await rpc('add_comment',{p_category:cat,p_post_id:id,p_parent_id:parent?.id||null,p_nickname:nickname.value.trim(),p_password:password.value,p_body:body.value.trim()});password.value='';await refresh();notify('글을 등록했습니다.');}catch(e){error.textContent=e.message||'등록하지 못했습니다.';submit.disabled=false;}
+ const actions=node('div','actions'),submit=node('button','button','등록');submit.type='submit';actions.append(submit,btn('취소',()=>target.replaceChildren(),'button ghost'));const error=node('p','form-error');error.setAttribute('role','alert');form.append(actions,error);target.replaceChildren(form);target.scrollIntoView({block:'center',behavior:'smooth'});nickname.focus({preventScroll:true});const clearCommentDraft=setupCommentDraft(form,cat,id,parent);
+ form.addEventListener('submit',async e=>{e.preventDefault();if(submit.disabled)return;error.textContent='';if(nickname.value.trim().length<2||!body.value.trim()){error.textContent='닉네임과 내용을 확인해 주세요.';return;}if(new TextEncoder().encode(password.value).length>72){error.textContent='비밀번호는 영문 약 72자, 한글 약 24자 이내로 입력해 주세요.';return;}
+  submit.disabled=true;const releaseForm=holdForm(form,submit,'등록 중…');try{await rpc('add_comment',{p_category:cat,p_post_id:id,p_parent_id:parent?.id||null,p_nickname:nickname.value.trim(),p_password:password.value,p_body:body.value.trim()});clearCommentDraft();password.value='';await refresh();notify('글을 등록했습니다.');}catch(e){error.textContent=e.message||'등록하지 못했습니다.';submit.disabled=false;}finally{releaseForm();}
  });
 }
 function manageComment(card,c,deleting,refresh){
@@ -392,7 +399,7 @@ function manageComment(card,c,deleting,refresh){
  const password=field(form,isAdmin?'댓글 비밀번호 · 관리자는 비워도 됩니다':'작성할 때 입력한 비밀번호','password');password.type='password';password.autocomplete='current-password';password.required=!isAdmin;
  let body;if(!deleting){body=field(form,'수정 내용','body','textarea');body.required=true;body.maxLength=2000;body.value=c.body;}else form.append(node('p','editor-note','이 댓글에 달린 답글도 함께 삭제됩니다.'));
  const actions=node('div','actions'),submit=node('button','button'+(deleting?' danger':''),deleting?'삭제 확인':'수정 저장');submit.type='submit';actions.append(submit,btn('취소',()=>form.remove(),'button ghost'));const error=node('p','form-error');error.setAttribute('role','alert');form.append(actions,error);card.append(form);(deleting?password:body).focus();
- form.addEventListener('submit',async e=>{e.preventDefault();submit.disabled=true;error.textContent='';try{const result=await rpc('manage_comment',{p_id:c.id,p_password:password.value,p_body:deleting?null:body.value.trim(),p_delete:deleting});if(result!=='ok')throw new Error(({wrong_password:'비밀번호가 일치하지 않습니다.',locked:'비밀번호 오류가 많습니다. 15분 후 다시 시도해 주세요.',not_found:'댓글을 찾을 수 없습니다.',invalid:'내용을 확인해 주세요.'})[result]||'다시 시도해 주세요.');await refresh();notify(deleting?'댓글을 삭제했습니다.':'댓글을 수정했습니다.');}catch(e){error.textContent=e.message||'처리하지 못했습니다.';submit.disabled=false;}});
+ form.addEventListener('submit',async e=>{e.preventDefault();if(submit.disabled)return;submit.disabled=true;error.textContent='';try{const result=await rpc('manage_comment',{p_id:c.id,p_password:password.value,p_body:deleting?null:body.value.trim(),p_delete:deleting});if(result!=='ok')throw new Error(({wrong_password:'비밀번호가 일치하지 않습니다.',locked:'비밀번호 오류가 많습니다. 15분 후 다시 시도해 주세요.',not_found:'댓글을 찾을 수 없습니다.',invalid:'내용을 확인해 주세요.'})[result]||'다시 시도해 주세요.');await refresh();notify(deleting?'댓글을 삭제했습니다.':'댓글을 수정했습니다.');}catch(e){error.textContent=e.message||'처리하지 못했습니다.';submit.disabled=false;}});
 }
 // Device-local reading history and resume points. Never sent to the server.
 const HISTORY_KEY='jh:reading-history:v1';
@@ -476,13 +483,61 @@ function markTocPosition(){const links=[...document.querySelectorAll('#article-t
 function enhanceEditor(form,body,format,preview){
  const toolbar=node('div','editor-toolbar');toolbar.setAttribute('role','group');toolbar.setAttribute('aria-label','본문 서식');
  const status=node('p','manuscript-stats');status.setAttribute('aria-live','off');body.closest('label').before(toolbar);body.closest('label').after(status);
- function wrap(before,after='',fallback='텍스트'){if(format.value!=='markdown'||!preview.hidden)return;const start=body.selectionStart,end=body.selectionEnd,chosen=body.value.slice(start,end)||fallback;const inserted=before+chosen+after;if(body.value.length-(end-start)+inserted.length>body.maxLength){notify('본문은 30,000자 이내로 작성해 주세요.');return;}body.setRangeText(inserted,start,end,'select');body.focus();body.setSelectionRange(start+before.length,start+before.length+chosen.length);body.dispatchEvent(new Event('input',{bubbles:true}));}
+ function wrap(before,after='',fallback='텍스트'){if(format.value!=='markdown'||!preview.hidden)return;const start=body.selectionStart,end=body.selectionEnd,chosen=body.value.slice(start,end)||fallback;const multiline=before==='\n> '||before==='\n- ';const content=multiline?chosen.split('\n').join(before):chosen;const inserted=before+content+after;if(body.value.length-(end-start)+inserted.length>body.maxLength){notify('본문은 30,000자 이내로 작성해 주세요.');return;}body.setRangeText(inserted,start,end,'select');body.focus();body.setSelectionRange(start+before.length,start+before.length+chosen.length);body.dispatchEvent(new Event('input',{bubbles:true}));}
  for(const [label,before,after,fallback] of [['소제목','\n## ','\n','소제목'],['강조','**','**','강조할 문장'],['인용','\n> ','\n','인용문'],['목록','\n- ','\n','목록 항목'],['링크','[','](https://example.com)','링크 설명']]){const b=btn(label,()=>wrap(before,after,fallback),'format-button');b.addEventListener('mousedown',e=>e.preventDefault());toolbar.append(b);}
+ const insertExtra=(kind)=>{if(format.value!=='markdown'||!preview.hidden)return;const start=body.selectionStart,end=body.selectionEnd;let text,selectStart,selectEnd;
+  if(kind==='table'){const block='\n\n| 항목 | 내용 |\n| --- | --- |\n| 항목 1 | 내용 1 |\n| 항목 2 | 내용 2 |\n\n';text=body.value.slice(0,start)+block+body.value.slice(end);selectStart=start+5;selectEnd=selectStart+2;}
+  else{let n=1;while(body.value.includes('[^note-'+n+']'))n++;const mark='[^note-'+n+']',chosen=body.value.slice(start,end);text=body.value.slice(0,start)+chosen+mark+body.value.slice(end)+'\n\n'+mark+': 저자, 문헌명, 연도, 쪽수.';selectStart=text.lastIndexOf('저자, 문헌명');selectEnd=text.length;}
+  if(text.length>body.maxLength){notify('본문은 30,000자 이내로 작성해 주세요.');return;}body.value=text;body.focus();body.setSelectionRange(selectStart,selectEnd);body.dispatchEvent(new Event('input',{bubbles:true}));
+ };toolbar.append(btn('표',()=>insertExtra('table'),'format-button'),btn('각주',()=>insertExtra('note'),'format-button'));
  function update(){const chars=body.value.length,remaining=30000-chars,minutes=Math.max(1,Math.ceil(body.value.replace(/\s/g,'').length/700));status.textContent=`${chars.toLocaleString('ko-KR')} / 30,000자 · 약 ${minutes}분 읽기${remaining<1000?' · '+remaining+'자 남음':''}`;status.classList.toggle('near-limit',remaining<1000);toolbar.hidden=format.value!=='markdown'||!preview.hidden;}
  form.addEventListener('input',update);form.addEventListener('change',update);form.addEventListener('click',()=>queueMicrotask(update));
  form.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='b'&&e.target===body&&format.value==='markdown'){e.preventDefault();wrap('**','**','강조할 문장');}});update();
 }
 setupReaderTools();
+
+// Portable manuscript backups. Restoring fills the editor; it never publishes.
+function setupManuscriptBackup(form,body,format,preview){
+ const panel=node('details','manuscript-backup');panel.append(node('summary','','원고 백업·복원'));
+ const help=node('p','editor-note','제목·본문·분류·출처를 JSON 파일로 보관합니다. 다른 기기의 편집기에서도 복원할 수 있습니다. 복원한 원고는 발행 버튼을 눌러야 공개됩니다.');
+ const actions=node('div','actions'),message=node('p','backup-status');message.setAttribute('role','status');
+ const input=node('input');input.type='file';input.accept='.json,application/json';input.hidden=true;
+ actions.append(btn('원고 백업 파일 저장',()=>{
+  const values=Object.fromEntries(new FormData(form));if(!values.title?.trim()&&!values.body?.trim()){message.textContent='백업할 제목이나 본문을 입력해 주세요.';return;}
+  const data={kind:'jeonghodu-manuscript',version:1,category,savedAt:new Date().toISOString(),values};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=node('a');a.href=url;a.download=(values.title||'원고').replace(/[<>:"/\\|?*\u0000-\u001f]/g,'_').slice(0,80)+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);message.textContent='백업 파일 다운로드를 요청했습니다.';
+ },'button ghost'),btn('백업 파일 불러오기',()=>input.click(),'button ghost'));panel.append(help,actions,input,message);form.querySelector('.format-help').after(panel);
+ input.addEventListener('change',async()=>{const file=input.files?.[0];if(!file)return;message.textContent='백업 파일을 확인하는 중입니다.';
+  try{
+   if(file.size>256000)throw Error('256KB 이하의 원고 백업 파일을 선택해 주세요.');
+   const data=JSON.parse(await file.text());if(data?.kind!=='jeonghodu-manuscript'||data.version!==1||!data.values||typeof data.values!=='object'||Array.isArray(data.values))throw Error('이 사이트에서 저장한 원고 백업 파일이 아닙니다.');
+   if(data.category!==category)throw Error(data.category==='projects'?'프로젝트 편집기에서 이 파일을 불러와 주세요.':'Writing 편집기에서 이 파일을 불러와 주세요.');
+   const limits={title:120,body:30000,abstract:600,author_name:100,source_name:200,source_url:1500};const options={topic:TOPICS,entry_type:TYPES,project_state:STATES,body_format:{plain:1,markdown:1}};
+   const values={};for(const [key,max] of Object.entries(limits)){const value=data.values[key]??'';if(typeof value!=='string'||value.length>max)throw Error('백업 파일의 '+key+' 값 또는 길이가 올바르지 않습니다.');values[key]=value;}
+   for(const [key,allowed] of Object.entries(options)){const value=data.values[key]??({topic:'general',entry_type:'note',project_state:'in_progress',body_format:'plain'}[key]);if(typeof value!=='string'||!Object.hasOwn(allowed,value))throw Error('백업 파일의 분류 값이 올바르지 않습니다.');values[key]=value;}
+   if(values.source_url&&!safeUrl(values.source_url))throw Error('출처 URL은 http 또는 https 주소여야 합니다.');
+   if(format.disabled&&values.body_format==='markdown')throw Error('이 원고는 Markdown 형식입니다. 분류 기능 연결을 완료한 뒤 불러와 주세요.');
+   if((body.value.trim()||form.elements.title.value.trim())&&!confirm('현재 편집기 내용을 백업 원고로 바꿀까요? 저장된 공개 글은 바뀌지 않습니다.')){message.textContent='복원을 취소했습니다.';return;}
+   for(const [key,value] of Object.entries(values)){const control=form.elements.namedItem(key);if(control&&!control.disabled)control.value=value;}
+   if(!preview.hidden)renderBody(preview,body.value,format.value);form.dispatchEvent(new Event('input',{bubbles:true}));message.textContent='원고를 편집기에 복원했습니다. 공개하려면 발행 또는 변경 저장을 눌러 주세요.';
+  }catch(e){message.textContent=e instanceof SyntaxError?'JSON 형식이 올바르지 않습니다. 원고 백업 파일을 선택해 주세요.':e.message||'백업 파일을 읽지 못했습니다.';}finally{input.value='';}
+ });
+}
+function commentDraftKey(cat,id,parent){return `jh:comment-draft:v1:${cat}:${id||'guestbook'}:${parent?.id||'root'}`;}
+function readCommentDraft(cat,id,parent){try{const x=JSON.parse(sessionStorage.getItem(commentDraftKey(cat,id,parent))||'null');if(x&&typeof x.nickname==='string'&&typeof x.body==='string'&&x.nickname.length<=24&&x.body.length<=2000)return x;}catch{}return null;}
+function setupCommentDraft(form,cat,id,parent){
+ const key=commentDraftKey(cat,id,parent),nickname=form.elements.nickname,body=form.elements.body,saved=readCommentDraft(cat,id,parent);
+ const note=node('p','comment-draft-note'),counter=node('span','comment-counter');note.setAttribute('role','status');
+ if(saved){nickname.value=saved.nickname;body.value=saved.body;note.textContent='이 탭에 남아 있던 초안을 복원했습니다. 비밀번호를 다시 입력해 주세요.';}else note.textContent='닉네임과 내용은 이 탭에 임시 저장됩니다. 비밀번호는 저장하지 않습니다.';
+ const tools=node('div','comment-draft-tools');tools.append(counter,btn('초안 지우기',()=>{if((body.value||nickname.value)&&!confirm('이 댓글의 임시 초안을 지울까요?'))return;try{sessionStorage.removeItem(key);}catch{}body.value='';nickname.value='';form.elements.password.value='';counter.textContent='0 / 2,000자';note.textContent='이 댓글의 임시 초안을 지웠습니다.';body.focus();},'text-button'));body.closest('label').after(tools,note);
+ const count=()=>{counter.textContent=body.value.length.toLocaleString('ko-KR')+' / 2,000자';};count();
+ form.addEventListener('input',e=>{if(!['nickname','body'].includes(e.target.name))return;count();try{if(body.value||nickname.value)sessionStorage.setItem(key,JSON.stringify({nickname:nickname.value,body:body.value}));else sessionStorage.removeItem(key);note.textContent='이 탭에 임시 저장됨 · 비밀번호는 저장하지 않습니다.';}catch{note.textContent='이 브라우저에서는 임시 저장할 수 없습니다. 새로고침 전에 내용을 복사해 주세요.';}});
+ return ()=>{try{sessionStorage.removeItem(key);}catch{}};
+}
+// Pipe tables support escaped pipes and pipes inside inline code.
+function tableCells(line){let text=line.trim();if(text.startsWith('|'))text=text.slice(1);if(/(?<!\\)\|$/.test(text))text=text.slice(0,-1);const cells=[];let cell='',code=false;for(let i=0;i<text.length;i++){const c=text[i];if(c==='\\'&&text[i+1]==='|'){cell+='|';i++;continue;}if(c==='`')code=!code;if(c==='|'&&!code){cells.push(cell.trim());cell='';}else cell+=c;}cells.push(cell.trim());return cells;}
+function tableSpec(lines,i){if(!lines[i]?.includes('|')||!lines[i+1]?.includes('|'))return null;const heads=tableCells(lines[i]),rules=tableCells(lines[i+1]);if(heads.length<2||heads.length>12||heads.length!==rules.length||!rules.every(x=>/^:?-{3,}:?$/.test(x)))return null;return {heads,align:rules.map(x=>x.startsWith(':')&&x.endsWith(':')?'center':x.endsWith(':')?'right':'left')};}
+function holdForm(form,submit,label){const previous=submit.textContent;submit.textContent=label;form.inert=true;form.setAttribute('aria-busy','true');return ()=>{form.inert=false;form.removeAttribute('aria-busy');submit.textContent=previous;};}
 
 setupAdmin();
 if(page==='home'){loadHome();renderReadingHistory();}
